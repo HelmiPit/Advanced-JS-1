@@ -1,7 +1,6 @@
-import {restaurantRow} from './components.js';
-import {fetchData} from './t5_2.js';
-
-const apiURL = 'https://media1.edu.metropolia.fi/restaurant/api/v1';
+import {restaurantRow, restaurantModal} from './components.js';
+import {fetchData} from './utils.js';
+import {baseUrl} from './variables.js';
 
 const menuDialog = document.querySelector('#menu');
 
@@ -20,23 +19,22 @@ const distance = (restaurantLocation, myLocation) => {
   );
 };
 
-async function getRestaurants() {
+const getRestaurants = async () => {
   try {
-    restaurants = await fetchData(apiURL + '/restaurants');
+    restaurants = await fetchData(baseUrl + '/restaurants');
     navigator.geolocation.getCurrentPosition(success, error, options);
   } catch (error) {
     console.error(error.message);
   }
-}
+};
 
-function renderRestaurants(restaurantsArray) {
+const renderRestaurants = (restaurantsArray) => {
   const target = document.querySelector('tbody');
   target.innerHTML = '';
 
   restaurantsArray.forEach((restaurant) => {
     const tr = restaurantRow(restaurant);
 
-    // klikkieventti, näytä ravintolan tiedot dialogissa
     tr.addEventListener('click', async () => {
       document.querySelectorAll('tr').forEach((rivi) => {
         rivi.classList.remove('highlight');
@@ -44,75 +42,25 @@ function renderRestaurants(restaurantsArray) {
 
       tr.classList.add('highlight');
 
-      // let puhelin = '';
-      // // jos ei ole puhelinnumeroo
-      // if (restaurant.phone === '-') {
-      //   puhelin = 'Ei puhelinta';
-      // } else {
-      //   puhelin = restaurant.phone;
-      // }
-
-      menuDialog.innerHTML = '';
-      let modalHTMl = `
-      <div>
-      <h3>${name}</h3>
-      <p>${restaurant.phone === '-' ? 'Ei puhelinta' : restaurant.phone}</p>
-      </div>
-      `;
-      // hae päivän menu ***
       const dailyMenu = await fetchData(
-        `${apiURL}/restaurants/daily/${restaurant._id}/fi`
+        `${baseUrl}/restaurants/daily/${restaurant._id}/fi`
       );
-      console.log(dailyMenu.courses);
-      modalHTMl += `
-       <table>
-        <tr>
-          <th>Course</th>
-          <th>Price</th>
-          <th>Diets</th>
-        </tr>
-       `;
-      dailyMenu.courses.forEach((course) => {
-        console.log(course);
-        const {name, price, diets} = course;
-        modalHTMl += `
-          <tr>
-            <td>${name}</td>
-            <td>${price ?? 'Ei hintaa'}</td>
-            <td>${diets.map((diet) => {
-              switch (diet) {
-                case 'ILM':
-                  return '&#9760;';
-                case 'L':
-                  return '&#128004;';
-                default:
-                  return diet;
-              }
-            })}</td>
-          </tr>
-        `;
-      });
 
-      modalHTMl += '</table>';
+      menuDialog.innerHTML = restaurantModal(restaurant, dailyMenu);
 
-      console.log(modalHTMl);
-      // *******************
-      menuDialog.insertAdjacentHTML('beforeend', modalHTMl);
       menuDialog.showModal();
     });
 
     target.append(tr);
   });
-}
+};
 
-// A function that is called when location information is retrieved
-function success(pos) {
+const success = (pos) => {
   const crd = pos.coords;
 
-  // Printing location information to the console
   console.log(crd);
 
-  restaurants.sort(function (a, b) {
+  restaurants.sort((a, b) => {
     const etaisyysA = distance(a.location.coordinates, [
       crd.longitude,
       crd.latitude,
@@ -125,24 +73,18 @@ function success(pos) {
 
     return etaisyysA - etaisyysB;
   });
-  renderRestaurants(restaurants);
-}
 
-// Function to be called if an error occurs while retrieving location information
-function error(err) {
+  renderRestaurants(restaurants);
+};
+
+const error = (err) => {
   console.warn(`ERROR(${err.code}): ${err.message}`);
   renderRestaurants(restaurants);
-}
+};
 
 getRestaurants();
 
-// ravintoloiden filtteröinti
-
 document.querySelector('#compass-button').addEventListener('click', () => {
-  // const compassRestaurants = restaurants.filter((restaurant) => {
-  //   return restaurant.company === 'Compass Group');
-  // });
-
   const compassRestaurants = restaurants.filter(
     (restaurant) => restaurant.company === 'Compass Group'
   );
@@ -151,10 +93,6 @@ document.querySelector('#compass-button').addEventListener('click', () => {
 });
 
 document.querySelector('#sodexo-button').addEventListener('click', () => {
-  // const sodexoRestaurants = restaurants.filter((restaurant) => {
-  //   return restaurant.company === 'Compass Group');
-  // });
-
   const sodexoRestaurants = restaurants.filter(
     (restaurant) => restaurant.company === 'Sodexo'
   );

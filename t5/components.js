@@ -2,23 +2,42 @@
 
 const restaurantRow = (restaurant) => {
   const {name, address, company, city} = restaurant;
-    const tr = document.createElement('tr');
+  const tr = document.createElement('tr');
 
-    const nameTd = document.createElement('td');
-    nameTd.innerText = name;
+  tr.innerHTML = `
+    <td>${name}</td>
+    <td>${address}</td>
+    <td>${company}</td>
+    <td>${city}</td>
+    `;
 
-    const addressTd = document.createElement('td');
-    addressTd.innerText = address;
+  return tr;
+};
 
-    const companyTd = document.createElement('td');
-    companyTd.innerText = company;
+const restaurantModal = (restaurant, menu) => {
+  const {name, address, postalCode, city, phone, company} = restaurant;
+  const {courses} = menu;
 
-    const cityTd = document.createElement('td');
-    cityTd.innerText = city;
+  let menuHtml = '<ul>';
 
-    tr.append(nameTd, addressTd, companyTd, cityTd);
+  courses.forEach((course) => {
+    const {name, price, diets} = course;
 
-    return tr;
-}
+    menuHtml += `
+      <li>${name}, ${price ?? '?€'}. ${diets}</li>
+      `;
+  });
 
-export {restaurantRow};
+  menuHtml += '</ul>';
+
+  return `
+    <h1>${name}</h1>
+    <p>${address}</p>
+    <p>${postalCode}, ${city}</p>
+    <p>${phone === '-' ? 'Ei puhelinta' : phone}</p>
+    <p>${company}</p>
+    ${menuHtml}
+    `;
+};
+
+export {restaurantRow, restaurantModal};
