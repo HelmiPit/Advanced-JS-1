@@ -48,6 +48,10 @@ const renderRestaurants = (restaurantsArray) => {
 
       menuDialog.innerHTML = restaurantModal(restaurant, dailyMenu);
 
+      document.querySelector('#close-button').addEventListener('click', () => {
+        menuDialog.close();
+      });
+
       menuDialog.showModal();
     });
 

@@ -37,6 +37,7 @@ const restaurantModal = (restaurant, menu) => {
     <p>${phone === '-' ? 'Ei puhelinta' : phone}</p>
     <p>${company}</p>
     ${menuHtml}
+    <button id="close-button">Sulje</button>
     `;
 };
 
