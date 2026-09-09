@@ -87,23 +87,3 @@ const error = (err) => {
 };
 
 getRestaurants();
-
-document.querySelector('#compass-button').addEventListener('click', () => {
-  const compassRestaurants = restaurants.filter(
-    (restaurant) => restaurant.company === 'Compass Group'
-  );
-
-  renderRestaurants(compassRestaurants);
-});
-
-document.querySelector('#sodexo-button').addEventListener('click', () => {
-  const sodexoRestaurants = restaurants.filter(
-    (restaurant) => restaurant.company === 'Sodexo'
-  );
-
-  renderRestaurants(sodexoRestaurants);
-});
-
-document.querySelector('#reset-button').addEventListener('click', () => {
-  renderRestaurants(restaurants);
-});
